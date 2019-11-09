@@ -427,8 +427,8 @@ def candlestick_trace(df):
         high=df["high"],
         low=df["low"],
         close=df["close"],
-        increasing=dict(line=dict(color="#00ff00")),
-        decreasing=dict(line=dict(color="white")),
+        increasing=dict(line=dict(color="#00d400")),
+        decreasing=dict(line=dict(color="#d40000")),
         showlegend=False,
         name="candlestick",
     )
@@ -618,7 +618,7 @@ def chart_div(pair):
                                         "value": "colored_bar_trace",
                                     },
                                 ],
-                                value="colored_bar_trace",
+                                value="candlestick_trace",
                             )
                         ],
                     ),
