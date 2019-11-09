@@ -47,7 +47,7 @@ currencies = ["EURUSD", "USDCHF", "USDJPY", "GBPUSD"]
 
 # API Requests for news div
 news_requests = requests.get(
-    "https://newsapi.org/v2/top-headlines?sources=bbc-news&apiKey=da8e2e705b914f9f86ed2e9692e66012"
+    "https://newsapi.org/v2/top-headlines?country=sg&category=business&apiKey=da8e2e705b914f9f86ed2e9692e66012"
 )
 
 # API Call to update news
@@ -437,7 +437,7 @@ def candlestick_trace(df):
 # For buy/sell modal
 def ask_modal_trace(currency_pair, index):
     df = currency_pair_data[currency_pair].iloc[index - 10 : index]  # returns ten rows
-    return go.Scatter(x=df.index, y=df["Ask"], mode="lines", showlegend=False)
+    return go.Scatter(x=df.index, y=df["Ask"], mode="lines+markers", showlegend=False)
 
 
 # For buy/sell modal
@@ -735,28 +735,28 @@ def modal(pair):
                                             ),
                                         ]
                                     ),
-                                    html.Div(
-                                        children=[
-                                            html.P("SL TPS"),
-                                            dcc.Input(
-                                                id=pair + "SL",
-                                                type="number",
-                                                min=0,
-                                                step=1,
-                                            ),
-                                        ]
-                                    ),
-                                    html.Div(
-                                        children=[
-                                            html.P("TP TPS"),
-                                            dcc.Input(
-                                                id=pair + "TP",
-                                                type="number",
-                                                min=0,
-                                                step=1,
-                                            ),
-                                        ]
-                                    ),
+                                    # html.Div(
+                                    #     children=[
+                                    #         html.P("SL TPS"),
+                                    #         dcc.Input(
+                                    #             id=pair + "SL",
+                                    #             type="number",
+                                    #             min=0,
+                                    #             step=1,
+                                    #         ),
+                                    #     ]
+                                    # ),
+                                    # html.Div(
+                                    #     children=[
+                                    #         html.P("TP TPS"),
+                                    #         dcc.Input(
+                                    #             id=pair + "TP",
+                                    #             type="number",
+                                    #             min=0,
+                                    #             step=1,
+                                    #         ),
+                                    #     ]
+                                    # ),
                                 ],
                             ),
                         ],
@@ -797,13 +797,13 @@ app.layout = html.Div(
                             className="logo", src=app.get_asset_url("dash-logo-new.png")
                         ),
                         html.H6(className="title-header", children="FOREX TRADER"),
-                        html.P(
-                            """
-                            This app continually queries csv files and updates Ask and Bid prices 
-                            for major currency pairs as well as Stock Charts. You can also virtually 
-                            buy and sell stocks and see the profit updates.
-                            """
-                        ),
+                        # html.P(
+                        #     """
+                        #     This app continually queries csv files and updates Ask and Bid prices 
+                        #     for major currency pairs as well as Stock Charts. You can also virtually 
+                        #     buy and sell stocks and see the profit updates.
+                        #     """
+                        # ),
                     ],
                 ),
                 # Ask Bid Currency Div
@@ -1051,21 +1051,21 @@ def generate_modal_figure_callback(pair):
 
 # Function updates the pair orders div
 def generate_order_button_callback(pair):
-    def order_callback(n, vol, type_order, sl, tp, pair_orders, ask, bid):
+    def order_callback(n, vol, type_order, pair_orders, ask, bid): #sl, tp, pair_orders, ask, bid):
         if n > 0:
             t = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             l = [] if pair_orders is None else json.loads(pair_orders)
             price = bid if type_order == "sell" else ask
 
-            if tp != 0:
-                tp = (
-                    price + tp * 0.001
-                    if tp != 0 and pair[3:] == "JPY"
-                    else price + tp * 0.00001
-                )
+            # if tp != 0:
+            #     tp = (
+            #         price + tp * 0.001
+            #         if tp != 0 and pair[3:] == "JPY"
+            #         else price + tp * 0.00001
+            #     )
 
-            if sl != 0:
-                sl = price - sl * 0.001 if pair[3:] == "JPY" else price + sl * 0.00001
+            # if sl != 0:
+            #     sl = price - sl * 0.001 if pair[3:] == "JPY" else price + sl * 0.00001
 
             order = {
                 "id": pair + str(len(l)),
@@ -1073,8 +1073,8 @@ def generate_order_button_callback(pair):
                 "type": type_order,
                 "volume": vol,
                 "symbol": pair,
-                "tp": tp,
-                "sl": sl,
+                # "tp": tp,
+                # "sl": sl,
                 "price": price,
                 "profit": 0.00,
                 "status": "open",
@@ -1118,19 +1118,19 @@ def update_orders(orders, current_bids, current_asks, id_to_close):
                 )
                 order["close Price"] = price
 
-            if order["tp"] != 0 and price >= order["tp"]:
-                order["status"] = "closed"
-                order["close Time"] = datetime.datetime.now().strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                order["close Price"] = price
+            # if order["tp"] != 0 and price >= order["tp"]:
+            #     order["status"] = "closed"
+            #     order["close Time"] = datetime.datetime.now().strftime(
+            #         "%Y-%m-%d %H:%M:%S"
+            #     )
+            #     order["close Price"] = price
 
-            if order["sl"] != 0 and order["sl"] >= price:
-                order["status"] = "closed"
-                order["close Time"] = datetime.datetime.now().strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                order["close Price"] = price
+            # if order["sl"] != 0 and order["sl"] >= price:
+            #     order["status"] = "closed"
+            #     order["close Time"] = datetime.datetime.now().strftime(
+            #         "%Y-%m-%d %H:%M:%S"
+            #     )
+            #     order["close Price"] = price
     return orders
 
 
@@ -1288,14 +1288,14 @@ for pair in currencies:
     )
 
     # set modal value SL to O
-    app.callback(Output(pair + "SL", "value"), [Input(pair + "Buy", "n_clicks")])(
-        generate_clean_sl_callback()
-    )
+    # app.callback(Output(pair + "SL", "value"), [Input(pair + "Buy", "n_clicks")])(
+    #     generate_clean_sl_callback()
+    # )
 
-    # set modal value TP to O
-    app.callback(Output(pair + "TP", "value"), [Input(pair + "Buy", "n_clicks")])(
-        generate_clean_tp_callback()
-    )
+    # # set modal value TP to O
+    # app.callback(Output(pair + "TP", "value"), [Input(pair + "Buy", "n_clicks")])(
+    #     generate_clean_tp_callback()
+    # )
 
     # hide modal
     app.callback(
@@ -1320,8 +1320,8 @@ for pair in currencies:
         [
             State(pair + "volume", "value"),
             State(pair + "trade_type", "value"),
-            State(pair + "SL", "value"),
-            State(pair + "TP", "value"),
+            # State(pair + "SL", "value"),
+            # State(pair + "TP", "value"),
             State(pair + "orders", "children"),
             State(pair + "ask", "children"),
             State(pair + "bid", "children"),
@@ -1357,8 +1357,8 @@ def update_order_table(orders, position):
         "Type",
         "Volume",
         "Symbol",
-        "TP",
-        "SL",
+        # "TP",
+        # "SL",
         "Price",
         "Profit",
         "Status",
