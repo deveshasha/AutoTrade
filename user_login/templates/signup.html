@@ -32,14 +32,14 @@
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100 p-b-160 p-t-50">
-				<form class="login100-form validate-form" method="post" action="" >
+				<form class="login100-form validate-form" method="post" action="">
 					{% if error %}
 					<div class="text-center w-full p-t-23">
 						<p class="error"><font color={{ colour }}><strong>Error:</strong> {{ error }} </font>
 					</div>
 					{% endif %}
 					<span class="login100-form-title p-b-43">
-						Account Login
+						Register User
 					</span>
 					<div class="wrap-input100 rs1 validate-input" data-validate = "Username is required">
 						<input class="input100" type="text" name="username" value="{{request.form.username}}">
@@ -54,16 +54,17 @@
 
 					<div class="container-login100-form-btn">
 						<!--<button class="login100-form-btn" onclick="location.href = 'http://13.229.208.238:8050/';">-->
-						<input class="login100-form-btn" type="submit" value="Login">
+						<input class="login100-form-btn" type="submit" value="Sign Up">
 						</input>
 					</div>
 					<div class="text-center w-full p-t-23">
-						<a href="../sign-up" class="txt1">
-							New User?
+						<a href="../login" class="txt1">
+							Existing User?
 						</a>
 					</div>
 
 				</form>
+
 			</div>
 		</div>
 	</div>
