@@ -87,6 +87,11 @@ def update_news():
         ]
     )
 
+# Returns row in prediction file with nearest datetime to current time
+def nearest_timestamp(items, t):
+    items = items.apply(lambda x : x.replace(year=2016))
+    t = t.replace(year=2016,month=12)
+    return min(items, key=lambda x: abs(x - t))
 
 # Returns dataset for currency pair with nearest datetime to current time
 def first_ask_bid(currency_pair, t):
@@ -247,8 +252,7 @@ def get_top_bar_cell(cellTitle, cellValue):
 
 
 # Returns HTML Top Bar for app layout
-def get_top_bar(
-    balance=50000, equity=50000, margin=0, fm=50000, m_level="%", open_pl=0):
+def get_top_bar(balance=50000, equity=50000, margin=0, fm=50000, m_level="%", open_pl=0):
     return [
         get_top_bar_cell("Balance", balance),
         get_top_bar_cell("Equity", equity),
@@ -256,6 +260,23 @@ def get_top_bar(
         get_top_bar_cell("Free Margin", fm),
         get_top_bar_cell("Margin Level", m_level),
         get_top_bar_cell("Open P/L", open_pl),
+    ]
+
+def get_pred_cell(cellTitle, cellValue):
+    return html.Div(
+        className="two-col",
+        children=[
+            html.P(className="p-top-bar", children=cellTitle),
+            html.P(id=cellTitle, className="display-none", children=cellValue),
+            html.P(children=cellValue, style={'color':'white', 'fontSize':'125%'})
+        ],
+    )
+
+def get_pred_bar(pair='EURUSD', time='', decision=''):
+    return [
+        get_pred_cell("Currency Pair", pair),
+        get_pred_cell("Time", time),
+        get_pred_cell("Decision", decision)
     ]
 
 
@@ -785,6 +806,8 @@ app.layout = html.Div(
         dcc.Interval(id="i_tris", interval=1 * 5000, n_intervals=0),
         # Interval component for graph updates
         dcc.Interval(id="i_news", interval=1 * 60000, n_intervals=0),
+        # Interval component for predicted decision updates
+        dcc.Interval(id="i_pred", interval=1 * 3000, n_intervals=0),
         # Left Panel Div
         html.Div(
             className="three columns div-left-panel",
@@ -836,11 +859,17 @@ app.layout = html.Div(
         ),
         # Right Panel Div
         html.Div(
+            style={"marginTop":"-4%"},
             className="nine columns div-right-panel",
             children=[
                 # Top Bar Div - Displays Balance, Equity, ... , Open P/L
                 html.Div(
                     id="top_bar", className="row div-top-bar", children=get_top_bar()
+                ),
+                html.Hr(),
+                # Predictions Div
+                html.Div(
+                    id="top_pred_bar", className="row", children=get_pred_bar()
                 ),
                 # Charts Div
                 html.Div(
@@ -1455,6 +1484,20 @@ def update_top_bar(orders):
 
     return get_top_bar(balance, equity, margin, free_margin, margin_level, open_pl)
 
+# Callback to update predicted decision value
+PREDICTION_JSON = DATA_PATH.joinpath("predictions.json")
+@app.callback(Output("top_pred_bar","children"), [Input("i_pred","n_intervals")])
+def update_pred_bar(n):
+
+    df = pd.read_json(PREDICTION_JSON)
+    now = datetime.datetime.now()
+    nearest_ts = nearest_timestamp(df['timestamp'],now)
+
+    pair = 'EURUSD'
+    time = "{:02d}".format(now.hour) + ':' + "{:02d}".format(now.minute) + ':' + "{:02d}".format(now.second)
+    decision = df[df['timestamp'] == nearest_ts]['decision'].item().upper()
+
+    return get_pred_bar(pair,time, decision)
 
 # Callback to update live clock
 @app.callback(Output("live_clock", "children"), [Input("interval", "n_intervals")])
