@@ -33,10 +33,10 @@ Go to [mysql](https://dev.mysql.com/downloads/mysql/) and download *mysql 5.7*  
 Log into installed mysql database and create a database and run following mysql query
 ```
 	CREATE TABLE users (
-    userID varchar(25) NOT NULL,
+        userID varchar(25) NOT NULL,
 	password varchar(255) NOT NULL,
 	account varchar(50),
-    PRIMARY KEY (userID)
+        PRIMARY KEY (userID)
 );
 ```
 In the AutoTrade-master folder go to user_login folder and do following
@@ -44,7 +44,7 @@ Open config file and set db user, db password, database name and database host
 Install dependencies using following command
 
 ```
-	pip install mysql-connector==2.2.9
+pip install mysql-connector==2.2.9
 ```
 
 The user-login is now setup. To see a user login run the command,
